@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 # FUNCTIONS
 
+# Decription: Converting the duration column from seconds to hours, with the input of the dataframe
 def seconds_to_hours(df):
     duration_col = df["DURATION"]
     
@@ -18,10 +19,12 @@ def seconds_to_hours(df):
         
     df["DURATION"] = duration_col
         
+# Desciption: Coverting the date column to a standard date, removing the time, with the input of dataframe
 def convert_date_to_std (df):
     df["START DATE(UTC)"] = pd.to_datetime(df['START DATE(UTC)']).dt.date
     df["END DATE(UTC)"] = pd.to_datetime(df['END DATE(UTC)']).dt.date
-    
+   
+# Desciption: Being able to visualize all the data from life cycle with a pie chart with the input of dataframe 
 def overall_pie(df):
     grouped_by_name = df.groupby("NAME")
     duration_ser = grouped_by_name["DURATION"].sum()
@@ -34,6 +37,8 @@ def overall_pie(df):
     
     plt.pie(duration_250_plus,labels=duration_250_plus.index, radius=2.5,startangle=90)
     
+# Desciption: Creating a bar chart of the time spent on home depending on the year, with the dataframe data, but also the 
+#               start and finish of each year from the csv file.
 def time_spent_home_bar (df,start,finish,year):
     year_2018 = df.iloc[start:finish]
     grouped_by_name = year_2018.groupby("NAME")
@@ -50,6 +55,7 @@ def time_spent_home_bar (df,start,finish,year):
     plt.ylabel("Hours")
     plt.title("Time spent at Home in " + str(year))
     
+# Decription: Getting the necessary data for the time spent sleeping by using the split, combine, and apply method
 def time_spent_sleep (df, start, finish, month):
     month_2022 = df.iloc[start:finish]
     grouped_by_name = month_2022.groupby("NAME")
@@ -59,6 +65,7 @@ def time_spent_sleep (df, start, finish, month):
     
     return duration, sleep_month_df
 
+# Creating a visualization of the time I spend sleeping using a bar chart, with also the mean and standard deviation
 def visualize_sleep(df,start,finish,month):
     sleep_funct = time_spent_sleep(df,start,finish,month)
     sleep_month_df = sleep_funct[1]
@@ -78,6 +85,8 @@ def visualize_sleep(df,start,finish,month):
     plt.ylabel("Hours")
     plt.title("Time spent sleeping in " + month)
 
+# Desciption: Using hypothesis testing of the time I spent sleeping in June and September of 2022, to see it I got more sleep
+#               during the summer
 def hypothesis_testing(df,alpha):
     sleep_june_duration = time_spent_sleep(df,16119,16272,"June")
     sleep_september_duration = time_spent_sleep(df,16759,17172,"September")
@@ -100,11 +109,13 @@ def hypothesis_testing(df,alpha):
     else:
         print("do not reject H0")
 
+# Desciption: converting date to a string of just numbers, removing the "-"
 def replace_date (df):
     df['START DATE(UTC)'] = df['START DATE(UTC)'].astype(str)
     df["START DATE(UTC)"] = df["START DATE(UTC)"].str.replace("-","")
     df['START DATE(UTC)'] = df['START DATE(UTC)'].astype(int)
 
+# Decription: Changing the name column into just numbers, to be prepared for classification
 def categorical_to_numeric (df):
     le = preprocessing.LabelEncoder()
     le.fit(df["NAME"])
@@ -112,7 +123,8 @@ def categorical_to_numeric (df):
     df["NAME"] = le.transform(df["NAME"])
 
     df.to_csv("project_knn.csv")
-    
+
+# Decription: Dividing the dataset into training and testing for classification
 def for_train_test_split(df):
     X = df.drop("NAME",axis=1)
     y = df["NAME"]
@@ -121,6 +133,7 @@ def for_train_test_split(df):
     
     return X_train, X_test, y_train, y_test
 
+# Description: Getting the accuracy using the KNN classifier
 def accuracy(df):
     tts = for_train_test_split(df)
     
@@ -139,6 +152,7 @@ def accuracy(df):
     acc = accuracy_score(y_test, y_predicted)
     print("accuracy:", acc)
     
+# Description: Getting the accuracy for the Decision tree classifier
 def tree_class(df):
     tts = for_train_test_split(df)
     
