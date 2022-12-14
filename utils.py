@@ -1,3 +1,7 @@
+# Alicia Domingo
+# 12/13/22
+# Final Project
+
 # Libraries
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +11,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn import tree
 
 # FUNCTIONS
 
@@ -165,3 +171,36 @@ def tree_class(df):
     tree_clf.fit(X_train, y_train)
     acc = tree_clf.score(X_test, y_test)
     print("accuracy:", acc)
+    
+    clf = tree.DecisionTreeClassifier(random_state=0)
+    iris = load_iris()
+    clf = clf.fit(iris.data, iris.target)
+    tree.plot_tree(clf, filled=True)
+
+# Description: Merging two files together to make a new dataframe
+def merge_files(df,df1):
+    grouped_by_name = df.groupby("NAME")
+    home_df = grouped_by_name.get_group(" Home")
+
+    grouped_by_date = home_df.groupby("START DATE(UTC)")
+    duration_ser = grouped_by_date["DURATION"].sum()
+    duration_df = duration_ser.to_frame()
+    duration_df.reset_index(inplace=True)
+
+    merged_df = pd.merge(duration_df, df1, left_index=True, right_index=True)
+    merged_df = merged_df.drop("Start Date(UTC)", axis=1)
+    merged_df.to_csv("merged.csv")
+
+    grouped_by_date = merged_df.groupby("DAY OF THE WEEK")
+    duration_ser = grouped_by_date["DURATION"].sum()
+    duration_df = duration_ser.to_frame()
+    
+    return duration_df
+
+# Description: To visualize the merged dataframe
+def visualize_merge(df):
+    plt.bar(df.index,df["DURATION"],color="green",edgecolor='black')
+    plt.xticks(rotation=45, ha="right")
+    plt.title("Hours Spent at Home each Day")
+    plt.xlabel("Days of the Week")
+    plt.ylabel("Time(Hours)")
